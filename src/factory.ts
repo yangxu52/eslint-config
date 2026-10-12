@@ -3,6 +3,7 @@ import type { Linter } from 'eslint'
 import { gitignore } from './configs/gitignore'
 import { ignores } from './configs/ignores'
 import { javascript } from './configs/javascript'
+import { prettier } from './configs/prettier'
 import { typescript } from './configs/typescript'
 import { vue } from './configs/vue'
 import type { CreateConfigOptions, FlatConfigInput } from './types'
@@ -21,11 +22,17 @@ function toConfigArray(input: FlatConfigInput): Linter.Config[] {
  * 契约：同步执行；内置配置层先生成，用户配置最后追加；
  * 返回新数组，不修改用户传入的对象与数组。
  *
- * 内置配置层顺序：ignores → gitignore → javascript → typescript → vue，
- * prettier 兼容层从 C6 接入。
+ * 内置配置层顺序：ignores → gitignore → javascript → typescript → vue → prettier-conflicts。
  */
 export function createConfig(options: CreateConfigOptions = {}, ...userConfigs: FlatConfigInput[]): Linter.Config[] {
-  const internalConfigs: Linter.Config[] = [ignores(), ...(options.gitignore === false ? [] : [gitignore()]), ...javascript(), ...typescript(), ...vue()]
+  const internalConfigs: Linter.Config[] = [
+    ignores(),
+    ...(options.gitignore === false ? [] : [gitignore()]),
+    ...javascript(),
+    ...typescript(),
+    ...vue(),
+    prettier(),
+  ]
 
   return [...internalConfigs, ...userConfigs.flatMap(toConfigArray)]
 }
