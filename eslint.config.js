@@ -5,7 +5,7 @@ import tsEslint from 'typescript-eslint'
 import eslintConfigPrettier from 'eslint-config-prettier/flat'
 
 export default defineConfig([
-  globalIgnores(['**/dist', '**/node_modules']),
+  globalIgnores(['**/dist', '**/node_modules', 'test/fixtures']),
   {
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
