@@ -26,6 +26,14 @@ describe('vue layer', () => {
     expect(results[0]?.messages.some((message) => message.ruleId === 'vue/require-v-for-key')).toBe(true)
   })
 
+  it('applies TypeScript rules to a TypeScript script block', async () => {
+    const results = await eslintWith().lintText('<script lang="ts">\ndebugger\nconst unused: number = 1\n</script>\n<template><div /></template>\n', {
+      filePath: 'a.vue',
+    })
+    expect(results[0]?.messages.some((message) => message.ruleId === 'no-debugger')).toBe(true)
+    expect(results[0]?.messages.some((message) => message.ruleId === '@typescript-eslint/no-unused-vars')).toBe(true)
+  })
+
   it('targets only .vue files', () => {
     const files = vue().flatMap((config) => (config.files as string[] | undefined) ?? [])
     expect(files.length).toBeGreaterThan(0)
