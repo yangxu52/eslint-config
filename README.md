@@ -28,8 +28,21 @@ export default createConfig()
 interface CreateConfigOptions {
   /** Read the project `.gitignore`. @default true */
   gitignore?: boolean
+  /** Enable the TypeScript layer for `.ts`/`.mts`/`.cts`/`.tsx`. @default true */
+  typescript?: boolean
+  /** Enable the Vue layer for `.vue`. @default true */
+  vue?: boolean
 }
 ```
+
+Layers are enabled by default. Disabling one removes that layer and ignores the matching extensions:
+
+| Option       | Effect when `false`                   |
+| ------------ | ------------------------------------- |
+| `typescript` | ignores `.ts`, `.mts`, `.cts`, `.tsx` |
+| `vue`        | ignores `.vue`                        |
+
+`typescript` and `vue` are independent: enabling Vue does not enable the TypeScript layer. The Vue layer handles its own script parsing, so a `.vue` `<script lang="ts">` is still checked by TypeScript rules even with `typescript: false`.
 
 ### Append your own Flat Config
 
@@ -78,6 +91,7 @@ user configs
 
 - Prettier runs separately. This package never runs Prettier; it only disables conflicting ESLint rules.
 - Type-aware linting is not enabled.
+- Disabling a layer ignores its extensions via global ignores; CLI `--no-ignore` does not re-enable them.
 - Only ESLint 10 is supported.
 
 ## License

@@ -23,14 +23,19 @@ function toConfigArray(input: FlatConfigInput): Linter.Config[] {
  * 返回新数组，不修改用户传入的对象与数组。
  *
  * 内置配置层顺序：ignores → gitignore → javascript → typescript → vue → prettier-conflicts。
+ * 其中 typescript 与 vue 层可按选项独立关闭（默认全开），关闭时对应扩展进入 ignores。
  */
 export function createConfig(options: CreateConfigOptions = {}, ...userConfigs: FlatConfigInput[]): Linter.Config[] {
+  const readGitignore = options.gitignore !== false
+  const useTypeScript = options.typescript !== false
+  const useVue = options.vue !== false
+
   const internalConfigs: Linter.Config[] = [
-    ignores(),
-    ...(options.gitignore === false ? [] : [gitignore()]),
+    ignores({ typescript: useTypeScript, vue: useVue }),
+    ...(readGitignore ? [gitignore()] : []),
     ...javascript(),
-    ...typescript(),
-    ...vue(),
+    ...(useTypeScript ? typescript() : []),
+    ...(useVue ? vue() : []),
     prettier(),
   ]
 
