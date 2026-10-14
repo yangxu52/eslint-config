@@ -34,6 +34,32 @@ describe('vue layer', () => {
     expect(results[0]?.messages.some((message) => message.ruleId === '@typescript-eslint/no-unused-vars')).toBe(true)
   })
 
+  it('reports undefined variables in a plain JS script block', async () => {
+    const results = await eslintWith().lintText('<script>\nwindow.alert(foo)\n</script>\n<template><div /></template>\n', { filePath: 'a.vue' })
+    expect(results[0]?.messages.some((message) => message.ruleId === 'no-undef' && message.message.includes('foo'))).toBe(true)
+    expect(results[0]?.messages.some((message) => message.ruleId === 'no-undef' && message.message.includes('window'))).toBe(false)
+  })
+
+  it('provides browser and Node globals to .vue', async () => {
+    const results = await eslintWith().lintText('<script>\nwindow.alert(process.env.NODE_ENV)\n</script>\n<template><div /></template>\n', {
+      filePath: 'a.vue',
+    })
+    expect(results[0]?.messages.some((message) => message.ruleId === 'no-undef')).toBe(false)
+  })
+
+  it('does not report TypeScript type references as undefined', async () => {
+    const results = await eslintWith().lintText(
+      '<script lang="ts">\ntype Foo = { a: number }\nconst x: Foo = { a: 1 }\nexport default { x }\n</script>\n<template><div /></template>\n',
+      { filePath: 'a.vue' }
+    )
+    expect(results[0]?.messages.some((message) => message.ruleId === 'no-undef')).toBe(false)
+  })
+
+  it('keeps no-undef disabled for .ts files (TypeScript layer)', async () => {
+    const results = await eslintWith().lintText('window.alert(foo)\n', { filePath: 'a.ts' })
+    expect(results[0]?.messages.some((message) => message.ruleId === 'no-undef')).toBe(false)
+  })
+
   it('targets only .vue files', () => {
     const files = vue().flatMap((config) => (config.files as string[] | undefined) ?? [])
     expect(files.length).toBeGreaterThan(0)

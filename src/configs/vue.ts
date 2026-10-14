@@ -1,6 +1,7 @@
 import type { Linter } from 'eslint'
 import js from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
+import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 import { GLOB_VUE } from '../globs'
@@ -42,5 +43,20 @@ export function vue(): Linter.Config[] {
         name: config.name ? config.name.replace('typescript-eslint/', 'yangxu/vue/typescript/') : 'yangxu/vue/typescript/rules',
       }
     }),
+    {
+      name: 'yangxu/vue/globals',
+      files: vueFiles,
+      languageOptions: {
+        globals: {
+          ...globals.browser,
+          ...globals.node,
+        },
+      },
+      rules: {
+        // TypeScript 的 eslint-recommended 层会关闭 no-undef；这里对 .vue 重新开启，
+        // 并补充 browser/Node 全局变量，避免纯 JS 脚本块漏检未定义变量。
+        'no-undef': 'error',
+      },
+    },
   ]
 }

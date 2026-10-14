@@ -92,6 +92,7 @@ user configs
 - Prettier runs separately. This package never runs Prettier; it only disables conflicting ESLint rules.
 - Type-aware linting is not enabled.
 - Disabling a layer ignores its extensions via global ignores; CLI `--no-ignore` does not re-enable them.
+- For `.vue`, `no-undef` is re-enabled with browser/Node globals after the TypeScript layer disables it; other TypeScript-conflicting core rules stay disabled.
 - Only ESLint 10 is supported.
 
 ## License
